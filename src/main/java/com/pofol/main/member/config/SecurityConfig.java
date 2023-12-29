@@ -47,8 +47,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()//인증이 필요한 url지정
                 .antMatchers("/admin/**", "/admin1/**").hasAuthority("ADMIN")
-                .antMatchers("/order/checkout").hasAuthority("USER")
-                .antMatchers("/grade", "/coupon", "/point/all", "/order/**", "/mypage/**").hasAnyAuthority("USER","ADMIN")
+//                .antMatchers("/order/checkout").hasAuthority("USER")
+                .antMatchers("/grade", "/coupon", "/point/all", "/order/**", "/mypage/**", "/order/checkout").hasAnyAuthority("USER","ADMIN")
                 .anyRequest().permitAll()
                 .and()
                 .exceptionHandling()
