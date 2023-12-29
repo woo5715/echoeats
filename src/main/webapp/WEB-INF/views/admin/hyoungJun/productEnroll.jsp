@@ -701,7 +701,7 @@
             </div>
             <div class="seller-btn-area btn-group-xlg">
                 <button type="button" class="btn btn-default" id="cancelBtn">취소</button>
-                <button type="submit" class="btn btn-primary enroll-btn" onclick="submitForm()">
+                <button type="submit" class="btn btn-primary enroll-btn">
                     <span class="content" id="enrollBtn">저장하기</span>
                 </button>
             </div>
