@@ -90,7 +90,7 @@ public class AdminController {
         return "redirect:/admin/dashboard";
     }
 
-    // 첨부 파일 업로드
+//     첨부 파일 업로드
     @PostMapping(value = "/uploadAjaxAction", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<ProductImageDto>> prodEnrollPOST(MultipartFile[] uploadFile) {
         // 이미지 파일 체크
