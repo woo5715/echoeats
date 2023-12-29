@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/resources/product/css/header-css.css">
     <link rel="stylesheet" href="/resources/product/css/productList-css.css">
     <link rel="stylesheet" href="/resources/product/css/footer.css">
-    <title>ecoeats - best</title>
+    <title>상품 리스트</title>
 </head>
 
 <body>

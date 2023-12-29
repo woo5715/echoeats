@@ -3,7 +3,7 @@
 <%@ page session="false" %>
 <html>
 <head>
-    <title>OrderCompleted</title>
+    <title>주문완료</title>
     <link rel="stylesheet" href="/resources/product/css/main-css.css">
     <link href="/resources/order/css/orderCompletedStyle.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="/resources/product/css/footer.css">
