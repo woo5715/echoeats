@@ -25,10 +25,10 @@
                     <img src="/resources/images/ad2.jpg">
                 </div>
                 <div class="swiper-slide">
-                    <img src="/resources/images/ad3.jpg">
+                    <img src="/resources/images/aaaa.jpg">
                 </div>
                 <div class="swiper-slide">
-                    <img src="/resources/images/ad4.jpg">
+                    <img src="/resources/images/bbb.jpg">
                 </div>
                 <div class="swiper-slide">
                     <img src="/resources/images/ad5.jpg">
