@@ -19,14 +19,12 @@
 <script>
     $(document).ready(function () {
 
-        var userId = '<%= request.getAttribute("id") %>';
-        console.log('userId : '+userId);
+
 
         // contentType: "application/x-www-form-urlencoded; charset=UTF-8",
         $.ajax({
             url: "grade_data",
             method: "GET",
-            data: { id: userId },
             dataType: "json",
             success: function(data) {
                 console.log('Received data:', data.gd_name);
@@ -36,6 +34,7 @@
             error: function(error) {
 
                 console.error('Error:', error);
+                alert('회원님의 등급을 가져오는 데 실패하였습니다.')
             }
         });
 
