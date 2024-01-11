@@ -22,25 +22,18 @@ public class GradeController {
 
     @GetMapping("/grade")
     public String gradeJoin(Model model, HttpServletRequest httpServletRequest) {
-        List<GradeDto> gradeDtos = gradeService.show_list();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        model.addAttribute("grade", gradeService.show_list());  //화면에 출력될 등급 리스트
 
-
-        model.addAttribute("id", authentication.getName());
-        model.addAttribute("grade", gradeDtos);
-
-        model.addAttribute("mypage","grade");
+        model.addAttribute("mypage","grade");  //마이페이지에서 등급페이지를 출력하기 위해
         return "member/mypage";
     }
 
     @GetMapping("/grade_data")
     @ResponseBody
-    public GradeDto boardAjax(String id) {
-        System.out.println(id);
-        GradeDto user123 = gradeService.show_grade(id);
-        System.out.println(user123);
-        return user123;
+    public GradeDto boardAjax(Authentication authentication) {
+        //현재 나의 등급 표시
+        return gradeService.show_grade(authentication.getName());
     }
 
 
