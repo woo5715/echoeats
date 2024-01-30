@@ -61,13 +61,11 @@
 
 
     $('.login_button').on("click", function (){
-        console.log('클릭')
         abc();
 
     });
     $('#loginform input').on('keydown', function (event) {
         if (event.which === 13) {
-            console.log('엔터');
             abc();
         }
     });
