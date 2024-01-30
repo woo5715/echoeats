@@ -6,6 +6,9 @@ import com.pofol.main.member.dto.CouponJoinDto;
 import com.pofol.main.member.dto.MemCouponDto;
 import com.pofol.main.member.repository.CouponRepository;
 import com.pofol.main.member.service.CouponService;
+import com.pofol.main.member.service.CouponServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,11 +31,11 @@ import java.util.*;
 @Controller
 public class CouponController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CouponServiceImpl.class);
+
     @Autowired
     CouponService couponService;
 
-    @Autowired
-    CouponRepository couponRepository;
 
     @GetMapping("/coupon")
     public String boardJoin(Model model) {
@@ -42,15 +46,6 @@ public class CouponController {
         //회원이 보유한 쿠폰들을 가져온다
         List<CouponJoinDto> coupon = couponService.getCouponJoin(id);
 
-        for (CouponJoinDto couponJoinDto : coupon) {
-            if(couponJoinDto.getCp_sts().equals("UNUSED")){
-                couponJoinDto.setCp_sts("미사용");
-            } else if (couponJoinDto.getCp_sts().equals("USED")) {
-                couponJoinDto.setCp_sts("사용 완료");
-            }else if (couponJoinDto.getCp_sts().equals("EXPIRES")) {
-                couponJoinDto.setCp_sts("기간 만료");
-            }
-        }
         //다운로드 쿠폰 테이블
         List<CouponDownloadDto> couponDownloadDtos = couponService.showDownloadList();
 
@@ -69,79 +64,47 @@ public class CouponController {
 
     @GetMapping("/coupon_dw")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> coupon_dwGet(long cp_id, int dw_id, Authentication authentication, HttpServletRequest request) throws ParseException {
-        System.out.println(cp_id);
-        System.out.println(dw_id);
-        //쿠폰id 로 일단 회원 보유 여부를 따진다
-        //있으면 -> 수량을 update,  없으면 -> insert
+    public ResponseEntity<Map<String, Object>> coupon_dwGet(long cp_id, int dw_id, Authentication authentication, HttpServletRequest request)  {
+
 
         if(authentication.getName() != null){
 
+            String user_id = authentication.getName();
+
             //dw_id로 현재 다운 받을 수 있는 수량 확인
             //수량 > 0 면 다운 가능, 수량 <= 0 다운 불가
-            int check_coupon_qyy = couponRepository.select_coupon_download_cp_qty(dw_id);
-            System.out.println("check_coupon_qyy : "+check_coupon_qyy);
+            int check_coupon_qyy = couponService.check_coupon_qty(dw_id);
 
             if(check_coupon_qyy > 0) {
-                System.out.println("쿠폰 수량이 0보다 큼");
                 //받은 기록이 있으면 다운x
-                List<Integer> integers1 = couponService.select_downloaded_dw_id(authentication.getName());
-                System.out.println("integers1 : " + integers1);
+                //두 개의 브라우저를 열어서 한쪽 다운로드 후 다른 한쪽 다운로드
+                //dw_id로 이 회원이 쿠폰을 다운받은 적이 있는지 확인
+                //있으면 x, 없으면 밑에 로직 수행
+                List<Integer> integers1 = couponService.select_downloaded_dw_id(user_id);
                 boolean is_downloaded = integers1.stream().anyMatch(a -> a == dw_id);
-                System.out.println("is_downloaded : " + is_downloaded);
 
                 if (!is_downloaded) {
 
-                    List<CouponJoinDto> couponJoin = couponService.getCouponJoin(authentication.getName());
+                    //다운받은 쿠폰이 내가보유중이라면 수량+1, 가지고 있지 않다면 insert
+                    List<CouponJoinDto> couponJoin = couponService.getCouponJoin(user_id);
                     boolean have_coupon = couponJoin.stream().anyMatch(a -> a.getCp_id().equals(cp_id));
-                    CouponJoinDto couponJoinDto = null;
-                    //두 개의 브라우저를 열어서 한쪽 다운로드 후 다른 한쪽 다운로드
-                    //dw_id로 이 회원이 쿠폰을 다운받은 적이 있는지 확인
-                    //있으면 x, 없으면 밑에 로직 수행
-                    if (have_coupon) {
-                        couponJoinDto = new CouponJoinDto();
-                        couponJoinDto.setMem_id(authentication.getName());
-                        couponJoinDto.setCp_id(cp_id);
-                        int result = couponService.update_cp_qty(couponJoinDto);
-                        System.out.println("update : " + result);
-                    } else {
-                        MemCouponDto memCouponDto = new MemCouponDto(authentication.getName(), cp_id);
-                        int result = couponService.insert_memCoupon(memCouponDto);
-                        System.out.println("insert : " + result);
-                    }
 
-
-                    //쿠폰테이블에 있는 수량 -1
-                    int dw_id_result = couponRepository.update_minus_cp_qty(dw_id);
-
-                    //쿠폰 다운 이력에 추가
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("mem_id", authentication.getName());
-                    map.put("dw_id", dw_id);
-                    int insert_cp_dw_hi_result = couponRepository.insert_cp_dw_hi(map);
-
+                    //회원에 쿠폰을 넣고, 쿠폰테이블에 있는 수량 -1,쿠폰 다운 이력에 추가
+                    couponService.download_cp(have_coupon,user_id, cp_id,dw_id);
 
                     //쿠폰 다운 이력 테이블과 쿠폰 다운 테이블의 중복된 dw_id들을 반환
                     //숫자들을 jsp로 반환한다
-                    List<Integer> integers = couponService.select_downloaded_dw_id(authentication.getName());
-                    System.out.println("다운 받았던 dw_id : " + integers);
+                    List<Integer> integers = couponService.select_downloaded_dw_id(user_id);
+
 
                     //jsp에 넘길 쿠폰 수량
                     //한 번 더 서용하는 이유는 위 코드가 실행될 동안 수량이 변경될 수 있기 때문이다
-                    int download_cp_qty = couponRepository.select_coupon_download_cp_qty(dw_id);
+                    //(추가) 그럼 다른 쿠폰들도 최신화해줘야 하는 거 아닌가??
+                    int download_cp_qty = couponService.download_cp_qty(dw_id);
 
 
-                    //쿠폰 가져오기
-                    //문제 여기에 기간과 사용 가능이 없다는 것이다
-                    //CouponDto couponDto = couponRepository.select_coupon(cp_id);
 
-                    CouponJoinDto couponJoinDto1 = null;
-                    List<CouponJoinDto> couponJoin1 = couponService.getCouponJoin(authentication.getName());
-                    for (CouponJoinDto joinDto : couponJoin1) {
-                        if (joinDto.getCp_id().equals(cp_id)) {
-                            couponJoinDto1 = joinDto;
-                        }
-                    }
+                    CouponJoinDto dw_cp_out_view = couponService.dw_cp_out_view(user_id, cp_id);
 
 
                     //넘길 데이터
@@ -149,12 +112,13 @@ public class CouponController {
                     responseMap.put("downloaded_dw_id_list", integers);   //수정 필요, 이미 쿠폰을 출력했을 때
                     responseMap.put("download_cp_qty", download_cp_qty);  //내가 받은 쿠폰의 남은 수량
                     responseMap.put("download_dw_id", dw_id);  //내가 다운받은 쿠폰 아이디 (수량 최신화를 위해 사용)
-                    responseMap.put("coupon_detail", couponJoinDto1);
+                    responseMap.put("coupon_detail", dw_cp_out_view);  //보유중인 쿠폰들에 받은 쿠폰 추가
 
-                    //현재 보유중인 쿠폰 수량 최신화
-                    int mem_have_cp_qty = couponService.member_cp_qty_count(authentication.getName());
+                    //현재 내가 보유중인 쿠폰 수량 최신화
+                    int mem_have_cp_qty = couponService.member_cp_qty_count(user_id);
                     request.getSession().setAttribute("mem_have_cp_qty", mem_have_cp_qty);
                     responseMap.put("mem_have_cp_qty", mem_have_cp_qty);
+                    logger.info("보유중인 쿠폰 수량 : {}", mem_have_cp_qty);
 
                     return new ResponseEntity<>(responseMap, HttpStatus.OK);
 
@@ -162,30 +126,50 @@ public class CouponController {
 
                 //다운 받은 이력이 있는 경우
 
-                Map<String, Object> errorMap = new HashMap<>();
-                errorMap.put("message", "이미 다운받은 쿠폰입니다.");
-                errorMap.put("redirect", "/coupon");
-                return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
+
+                return createError("이미 다운받은 쿠폰입니다.", "/coupon", HttpStatus.BAD_REQUEST);
 
             }//if(check_coupon_qyy > 0)
 
-            Map<String, Object> errorMap = new HashMap<>();
-            errorMap.put("message", "받을 수 있는 쿠폰이 없습니다.");
-            errorMap.put("redirect", "/coupon");
-            return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
+
+            return createError("받을 수 있는 쿠폰이 없습니다.", "/coupon", HttpStatus.BAD_REQUEST);
 
         }//if(authentication.getName() != null)
 
 
 
-        Map<String, Object> errorMap = new HashMap<>();
-        errorMap.put("message", "예상치 못한 오류가 발생하였습니다.");
-        errorMap.put("redirect", "/coupon");
-        return new ResponseEntity<>(errorMap, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return createError("예상치 못한 오류가 발생하였습니다.", "/coupon", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    public ResponseEntity<Map<String, Object>> createError(String message, String redirect, HttpStatus status){
+        Map<String, Object> errorMap = new HashMap<>();
+        errorMap.put("message", message);
+        errorMap.put("redirect", redirect);
+        return new ResponseEntity<>(errorMap, status);
+
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<Map<String, Object>> controllerExceptionHandler(Exception e) {
+        logger.error(e.getMessage());
+        return createError("예상치 못한 오류가 발생하였습니다.", "/coupon", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
 
 }
 
-//해야할 거
-//1. 이미 받은 쿠폰입니다. (문구 추가)
+//질문 - 예외
+//db에 예외처리 : 사용자에게 -> 예상치 못한 오류 발생, 백에서는 로그를 남긴다
+//어떤식으로 예외를 처리해야 하는가?
+
+
+
+
+//문제
+//이미 있던 쿠폰을 또 다운받으면 수량이 늘어나는 것이 아닌 새로 출력된다
+//신규가입 쿠폰24장, 신규가입쿠폰 다운로드
+//신규가입 쿠폰25장
+//그래서 만약 다운받은 쿠폰이 내가 보유중이라면 새로 출력이 아닌 수량만 최신화
+//태그를 가져와 숫자를 최신화
