@@ -17,10 +17,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class) // Junit5
@@ -113,14 +117,14 @@ public class MemberServiceImplTest {
     public void re_check_grade() throws Exception {
         List<MemberDto> memberDtos = memberRepository.checkGrade("2023-12-04");
         System.out.println(memberDtos);
-        assertTrue(memberDtos.size()==6);
+        assertEquals(6, memberDtos.size());
     }
 
     @Test
     public void se_check_grade() throws Exception{
         List<MemberDto> memberDtos = memberService.check_grade("2023-12-04");
         System.out.println(memberDtos);
-        assertTrue(memberDtos.size()==6);
+        assertEquals(6, memberDtos.size());
     }
 
 //    @Test
@@ -173,7 +177,7 @@ public class MemberServiceImplTest {
         List<CouponDownloadDto> couponDownloadDtos = couponRepository.select_downloadList();
         System.out.println(couponDownloadDtos);
 
-        assertTrue(couponDownloadDtos.size() == 3);
+        assertEquals(3, couponDownloadDtos.size());
     }
 
     @Test
@@ -181,7 +185,7 @@ public class MemberServiceImplTest {
         List<CouponDownloadDto> couponDownloadDtos = couponService.showDownloadList();
         System.out.println(couponDownloadDtos);
 
-        assertTrue(couponDownloadDtos.size() == 3);
+        assertEquals(3, couponDownloadDtos.size());
     }
 
     @Test
@@ -247,14 +251,14 @@ public class MemberServiceImplTest {
     public void re_select_downloaded_dw_id(){
         List<Integer> result = couponRepository.select_downloaded_dw_id("admin123");
         System.out.println(result);
-        assertTrue(result.size()==2);
+        assertEquals(2, result.size());
     }
 
     @Test
     public void se_select_downloaded_dw_id(){
         List<Integer> result = couponService.select_downloaded_dw_id("admin123");
         System.out.println(result);
-        assertTrue(result.size()==2);
+        assertEquals(2, result.size());
     }
 
     @Test
@@ -285,6 +289,21 @@ public class MemberServiceImplTest {
         int i = couponRepository.member_cp_qty_count("user123");
         System.out.println(i);
         //assertTrue(i == 5);
+    }
+
+    @Test
+    public void new_se_check_grade() throws Exception {
+//        List<MemberDto> memberDtos = memberService.check_grade("12-28");
+//        for (MemberDto memberDto : memberDtos) {
+//            System.out.println(memberDto);
+//        }
+//        assertEquals(memberDtos.size(), 11);
+
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
+        String format_currentDate = formatter.format(currentDate);
+        System.out.println(format_currentDate);
+
     }
 
 
