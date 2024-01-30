@@ -38,7 +38,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        System.out.println(vo2);
+
         if (vo2 == null) {
             return null;
         }
@@ -55,8 +55,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         grantedAuthorities.add(new SimpleGrantedAuthority(vo2.getRole()));
         securityUser.setAuthorities(grantedAuthorities);
 
-
-        System.out.println("securityUser = " + securityUser);
 
 
         return securityUser;
