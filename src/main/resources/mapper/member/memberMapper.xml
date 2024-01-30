@@ -45,8 +45,9 @@
     </select>
 
     <select id="checkGrade" parameterType="String" resultType="MemberDto">
-        select mem_id, gd_name from member
-        where update_date = #{date}
+        SELECT mem_id, gd_name
+        FROM member
+        WHERE DATE_FORMAT(md_date, '%m-%d') LIKE CONCAT('%', #{targetDate}, '%')
     </select>
 
     <update id="updateGrade" parameterType="MemberDto">
