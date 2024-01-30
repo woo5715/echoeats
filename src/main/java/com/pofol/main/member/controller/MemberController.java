@@ -33,12 +33,11 @@ public class MemberController {
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @RequestMapping(value = "/login_form", method = RequestMethod.GET)
-    public String loginGET(HttpServletRequest request,HttpServletResponse response, Model model, Authentication authentication) {
+    @GetMapping( "/login_form")
+    public String loginGET(HttpServletRequest request, Model model, Authentication authentication) {
         HttpSession session = request.getSession();
         //만약 인증이 되어 있는 회원이면 이전에 왔던 곳에서 리다이렉트
         //1. 인증된 회원과 익명사용자의 Authentication을 확인
-        System.out.println("로그인GET : " + authentication);
         String referer = request.getHeader("Referer"); //login_form
         String ser = request.getServletPath();
         System.out.println("ser : " +ser);
