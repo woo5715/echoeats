@@ -19,4 +19,9 @@ public class CouponJoinDto {
     private int max_disc_amt;
     private String type;
 
+    public CouponJoinDto(String mem_id, Long cp_id){
+        this.mem_id =mem_id;
+        this.cp_id =cp_id;
+    }
+
 }
