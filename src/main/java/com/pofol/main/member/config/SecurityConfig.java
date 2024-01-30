@@ -27,19 +27,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    AuthenticationSuccessHandler authenticationSuccessHandler;
 
-    @Autowired
-    AuthenticationFailureHandler authenticationFailureHandler;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        //super.configure(web);
-    }
 
 
     @Override
@@ -51,23 +40,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/grade", "/coupon", "/point/all", "/order/**", "/mypage/**", "/order/checkout").hasAnyAuthority("USER","ADMIN")
                 .anyRequest().permitAll()
                 .and()
-                .exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler())
+                    .exceptionHandling()
+                    .accessDeniedHandler(accessDeniedHandler())
                 .and()
-                .formLogin()    //Form Login 방식 적용
-                .loginPage("/member/login_form")
-                .loginProcessingUrl("/login")
-                .successHandler(authenticationSuccessHandler())
-                .failureHandler(authenticationFailureHandler())
-                .usernameParameter("mem_id")
-                .passwordParameter("mem_pwd")
+                    .formLogin()    //Form Login 방식 적용
+                    .loginPage("/member/login_form")
+                    .loginProcessingUrl("/login")
+                    .successHandler(authenticationSuccessHandler())
+                    .failureHandler(authenticationFailureHandler())
+                    .usernameParameter("mem_id")
+                    .passwordParameter("mem_pwd")
                 .and()
-                .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                //.logoutSuccessUrl("/member/info")
-                .logoutSuccessHandler(logoutSuccessHandler())
-                //.logoutSuccessUrl("/member/logout")
-                .invalidateHttpSession(true);
+                    .logout()
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                    //.logoutSuccessUrl("/member/info")
+                    .logoutSuccessHandler(logoutSuccessHandler())
+                    //.logoutSuccessUrl("/member/logout")
+                    .invalidateHttpSession(true);
 
 
     }
@@ -76,7 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //사용자가 적은 패스워드를 해쉬로 암호화하고  DB의 회원가입 되어 암호화 된 비밀번호와 비교를 먼저해준다.
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
+        auth.userDetailsService(userDetailsService());
     }
 
 
