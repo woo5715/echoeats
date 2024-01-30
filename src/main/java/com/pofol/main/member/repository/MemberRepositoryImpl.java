@@ -53,7 +53,7 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
     @Override
-    public int updateGrade(MemberDto memberDto) throws Exception {
+    public int updateGrade(MemberDto memberDto)  {
         return session.update(namespace+"updateGrade", memberDto);
     }
 
