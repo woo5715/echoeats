@@ -1,7 +1,12 @@
 package com.pofol.main.member.dto;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.util.Date;
 
+@Getter
+@NoArgsConstructor
 public class GradeDto {
     private String gd_name;  //PK, 등급이름
     private int gd_condition;  //조건
@@ -12,8 +17,7 @@ public class GradeDto {
     private Date md_date;
     private String md_num;
 
-    public GradeDto() {
-    }
+
 
     public GradeDto(String gd_name, int gd_condition, int acm_rate, String benefits, String rg_num, String md_num) {
         this.gd_name = gd_name;
@@ -24,65 +28,42 @@ public class GradeDto {
         this.md_num = md_num;
     }
 
-    public String getGd_name() {
-        return gd_name;
-    }
+
 
     public void setGd_name(String gd_name) {
         this.gd_name = gd_name;
     }
 
-    public int getGd_condition() {
-        return gd_condition;
-    }
 
     public void setGd_condition(int gd_condition) {
         this.gd_condition = gd_condition;
     }
 
-    public int getAcm_rate() {
-        return acm_rate;
-    }
 
     public void setAcm_rate(int acm_rate) {
         this.acm_rate = acm_rate;
     }
 
-    public String getBenefits() {
-        return benefits;
-    }
 
     public void setBenefits(String benefits) {
         this.benefits = benefits;
     }
 
-    public Date getRg_date() {
-        return rg_date;
-    }
 
     public void setRg_date(Date rg_date) {
         this.rg_date = rg_date;
     }
 
-    public String getRg_num() {
-        return rg_num;
-    }
 
     public void setRg_num(String rg_num) {
         this.rg_num = rg_num;
     }
 
-    public Date getMd_date() {
-        return md_date;
-    }
 
     public void setMd_date(Date md_date) {
         this.md_date = md_date;
     }
 
-    public String getMd_num() {
-        return md_num;
-    }
 
     public void setMd_num(String md_num) {
         this.md_num = md_num;
